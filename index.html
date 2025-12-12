@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Diagnostic</title>
+    <title>Biz Brain Forms</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -13,7 +13,7 @@
             padding: 40px 20px;
         }
         .container {
-            max-width: 700px;
+            max-width: 760px;
             margin: 0 auto;
             background: white;
             border-radius: 16px;
@@ -27,7 +27,10 @@
             text-align: center;
         }
         .header h1 { font-size: 24px; margin-bottom: 8px; }
-        .header p { opacity: 0.8; font-size: 14px; }
+        .header p { opacity: 0.8; font-size: 14px; line-height: 1.5; }
+
+        .content { padding: 30px; }
+
         .progress {
             display: flex;
             justify-content: center;
@@ -44,11 +47,12 @@
         }
         .dot.active { background: #667eea; transform: scale(1.2); }
         .dot.completed { background: #28a745; }
-        .content { padding: 30px; }
+
         .section { display: none; }
         .section.active { display: block; }
         .section h2 { color: #1a1a2e; margin-bottom: 8px; font-size: 20px; }
         .section-desc { color: #666; margin-bottom: 24px; font-size: 14px; }
+
         .question { margin-bottom: 24px; }
         .question label {
             display: block;
@@ -74,6 +78,7 @@
             border-color: #667eea;
         }
         .question textarea { resize: vertical; min-height: 100px; }
+
         .nav-buttons {
             display: flex;
             justify-content: space-between;
@@ -104,6 +109,7 @@
             cursor: not-allowed;
             transform: none;
         }
+
         /* Access page */
         .access-page {
             min-height: 100vh;
@@ -115,13 +121,13 @@
             background: white;
             border-radius: 16px;
             padding: 40px;
-            max-width: 400px;
+            max-width: 420px;
             width: 100%;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
         }
         .access-box h1 { color: #1a1a2e; margin-bottom: 8px; font-size: 24px; }
-        .access-box p { color: #666; margin-bottom: 24px; font-size: 14px; }
+        .access-box p { color: #666; margin-bottom: 18px; font-size: 14px; line-height: 1.5; }
         .access-box input {
             width: 100%;
             padding: 14px 18px;
@@ -130,7 +136,7 @@
             font-size: 18px;
             text-align: center;
             letter-spacing: 4px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
         .access-box input:focus { outline: none; border-color: #667eea; }
         .access-box .error {
@@ -140,11 +146,13 @@
             display: none;
         }
         .access-box .error.show { display: block; }
+
+        /* Menu */
+        .menu-actions { margin-top: 10px; }
+        .menu-actions button { width: 100%; margin-top: 10px; }
+        .menu-hint { margin-top: 10px; font-size: 12px; color: #777; }
+
         /* Success page */
-        .success-page {
-            text-align: center;
-            padding: 60px 30px;
-        }
         .checkmark {
             width: 80px;
             height: 80px;
@@ -157,8 +165,7 @@
             font-size: 40px;
             color: white;
         }
-        .success-page h1 { color: #1a1a2e; margin-bottom: 16px; }
-        .success-page p { color: #666; line-height: 1.6; }
+
         /* Loading spinner */
         .spinner {
             display: inline-block;
@@ -172,25 +179,50 @@
             vertical-align: middle;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        /* Hide form initially */
-        #formContainer { display: none; }
+
+        /* Hide containers initially */
+        #menuContainer { display: none; }
+        #diagnosticContainer { display: none; }
+        #ideaforgeIntakeContainer { display: none; }
+        #ideaforgeUpdateContainer { display: none; }
         #successContainer { display: none; }
+
+        /* Small helpers */
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .note { font-size: 12px; color: #777; margin-top: 6px; line-height: 1.4; }
+        .top-actions { display:flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .linkish { background: transparent; border: none; padding: 0; color: #667eea; cursor: pointer; font-size: 14px; }
+        .linkish:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
     <!-- Access Code Page -->
     <div id="accessContainer" class="access-page">
         <div class="access-box">
-            <h1>Business Diagnostic</h1>
+            <h1>Biz Brain</h1>
             <p>Enter the access code provided by your consultant.</p>
             <input type="text" id="accessCode" placeholder="Access Code" autocomplete="off" autofocus>
             <button class="btn-primary" style="width:100%" onclick="verifyCode()">Continue →</button>
             <p class="error" id="accessError">Invalid access code. Please try again.</p>
+            <p class="menu-hint">Note: access codes on GitHub Pages are deterrence, not strong security.</p>
         </div>
     </div>
 
-    <!-- Main Form -->
-    <div id="formContainer">
+    <!-- Menu -->
+    <div id="menuContainer" class="access-page">
+        <div class="access-box">
+            <h1>Choose a form</h1>
+            <p>Pick the form you were sent.</p>
+            <div class="menu-actions">
+                <button class="btn-secondary" onclick="startDiagnostic()">Business Diagnostic (existing business)</button>
+                <button class="btn-primary" onclick="startIdeaForgeIntake()">IdeaForge Run Intake (new idea)</button>
+                <button class="btn-secondary" onclick="startIdeaForgeUpdate()">IdeaForge Run Update (results)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Diagnostic (existing) -->
+    <div id="diagnosticContainer">
         <div class="container">
             <div class="header">
                 <h1>Business Diagnostic</h1>
@@ -198,7 +230,42 @@
             </div>
             <div class="progress" id="progressDots"></div>
             <div class="content">
+                <div class="top-actions">
+                    <button class="linkish" onclick="showMenu()">← Back to menu</button>
+                </div>
                 <form id="intakeForm"></form>
+            </div>
+        </div>
+    </div>
+
+    <!-- IdeaForge Intake -->
+    <div id="ideaforgeIntakeContainer">
+        <div class="container">
+            <div class="header">
+                <h1>IdeaForge Run Intake</h1>
+                <p>Submit an idea and get a run: decision map + cheapest tests + risk register + stoplight.</p>
+            </div>
+            <div class="content">
+                <div class="top-actions">
+                    <button class="linkish" onclick="showMenu()">← Back to menu</button>
+                </div>
+                <form id="ideaforgeIntakeForm"></form>
+            </div>
+        </div>
+    </div>
+
+    <!-- IdeaForge Update -->
+    <div id="ideaforgeUpdateContainer">
+        <div class="container">
+            <div class="header">
+                <h1>IdeaForge Run Update</h1>
+                <p>Report outcomes from the last 7–14 days so we can update your stoplight and next tests.</p>
+            </div>
+            <div class="content">
+                <div class="top-actions">
+                    <button class="linkish" onclick="showMenu()">← Back to menu</button>
+                </div>
+                <form id="ideaforgeUpdateForm"></form>
             </div>
         </div>
     </div>
@@ -208,20 +275,21 @@
         <div class="access-box">
             <div class="checkmark">✓</div>
             <h1>Thank You!</h1>
-            <p>Your diagnostic has been submitted successfully. We'll review your responses and get back to you soon.</p>
+            <p id="successMessage">Submitted successfully.</p>
+            <button class="btn-secondary" style="width:100%; margin-top: 16px" onclick="showMenu()">Back to menu</button>
         </div>
     </div>
 
     <script>
     // =========================================================================
-    // CONFIGURATION - Update these values
+    // CONFIGURATION
     // =========================================================================
-    
-    const ACCESS_CODE = "bizbrain2024";  // Change this per client if desired
-    
+
+    const ACCESS_CODE = "bizbrain2024";  // deterrence only
+
     // Replace with your Google Apps Script Web App URL after setup
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwvyl4yMwkI4YbZ-V5bb9P7Bb0OUmv-7JXSWGFQBiF2B9JmE4-6J2A7s2pOs_LPrO2a/exec";
-    
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxb74GbqqQdz268UoJzqSTxAbmUStoS1qSI1UnWEaMV-VnpYX8OmTXPz1-Zh1zlG0Za/exec";
+
     // =========================================================================
 
     const SECTIONS = [
@@ -357,15 +425,56 @@
         }
     ];
 
+    const IDEAFORGE_INTAKE_FIELDS = [
+        { id: 'name', text: 'Your name', type: 'text', required: true },
+        { id: 'email', text: 'Email', type: 'email', required: true },
+        { id: 'idea_one_liner', text: 'One-sentence idea', type: 'text', required: true },
+        { id: 'icp', text: 'Who it\'s for (ICP)', type: 'textarea', required: true },
+        { id: 'jtbd', text: 'Problem / job-to-be-done', type: 'textarea', required: true },
+        { id: 'alternatives', text: 'Current solution / alternatives', type: 'textarea', required: false },
+        { id: 'why_now', text: 'Why now?', type: 'textarea', required: false },
+        { id: 'time_budget', text: 'Time budget', type: 'select', required: true, options: ['Side-project','Part-time','Full-time'] },
+        { id: 'runway', text: 'Runway', type: 'select', required: true, options: ['<3mo','3–12mo','>12mo','Unknown'] },
+        { id: 'non_negotiables', text: 'Non-negotiables', type: 'textarea', required: false },
+        { id: 'primary_distribution', text: 'Primary distribution', type: 'select', required: true, options: ['Owned-audience','Community','SEO','Marketplace','Build-in-public','Direct sales','Affiliates','Unknown'] },
+        { id: 'stage', text: 'Stage', type: 'select', required: true, options: ['Pre-PMF','Post-PMF','Scaling'] },
+        { id: 'customer_type', text: 'Customer type', type: 'select', required: true, options: ['B2B-SMB','B2B-Midmarket','B2C','Prosumer','Unknown'] },
+        { id: 'pricing_motion', text: 'Pricing motion', type: 'select', required: true, options: ['Subscription','One-time','Per-transaction','Trial','Paywall-at-value-moment','Unknown'] },
+        { id: 'notes_links', text: 'Notes / links (optional)', type: 'textarea', required: false }
+    ];
+
+    const IDEAFORGE_UPDATE_FIELDS = [
+        { id: 'name', text: 'Your name', type: 'text', required: true },
+        { id: 'email', text: 'Email', type: 'email', required: true },
+        { id: 'run_reference', text: 'Which run is this for? (paste filename or title)', type: 'text', required: true },
+        { id: 'tests_ran', text: 'What tests did you run?', type: 'textarea', required: true },
+        { id: 'results', text: 'Results (numbers + outcomes)', type: 'textarea', required: true },
+        { id: 'learnings', text: 'What did you learn / what changed?', type: 'textarea', required: false },
+        { id: 'stoplight', text: 'Updated stoplight (self-report)', type: 'select', required: false, options: ['Unknown','GREEN','YELLOW','RED'] },
+        { id: 'next_action', text: 'Next action you plan', type: 'text', required: false }
+    ];
+
     let currentSection = 0;
+
+    function hideAll() {
+        document.getElementById('accessContainer').style.display = 'none';
+        document.getElementById('menuContainer').style.display = 'none';
+        document.getElementById('diagnosticContainer').style.display = 'none';
+        document.getElementById('ideaforgeIntakeContainer').style.display = 'none';
+        document.getElementById('ideaforgeUpdateContainer').style.display = 'none';
+        document.getElementById('successContainer').style.display = 'none';
+    }
+
+    function showMenu() {
+        hideAll();
+        document.getElementById('menuContainer').style.display = 'flex';
+    }
 
     // Verify access code
     function verifyCode() {
         const code = document.getElementById('accessCode').value;
         if (code === ACCESS_CODE) {
-            document.getElementById('accessContainer').style.display = 'none';
-            document.getElementById('formContainer').style.display = 'block';
-            initForm();
+            showMenu();
         } else {
             document.getElementById('accessError').classList.add('show');
         }
@@ -376,10 +485,38 @@
         if (e.key === 'Enter') verifyCode();
     });
 
-    // Initialize the form
-    function initForm() {
-        // Create progress dots
+    function startDiagnostic() {
+        hideAll();
+        document.getElementById('diagnosticContainer').style.display = 'block';
+        initDiagnosticForm();
+        window.scrollTo(0, 0);
+    }
+
+    function startIdeaForgeIntake() {
+        hideAll();
+        document.getElementById('ideaforgeIntakeContainer').style.display = 'block';
+        renderSimpleForm('ideaforgeIntakeForm', IDEAFORGE_INTAKE_FIELDS, submitIdeaForgeIntake);
+        window.scrollTo(0, 0);
+    }
+
+    function startIdeaForgeUpdate() {
+        hideAll();
+        document.getElementById('ideaforgeUpdateContainer').style.display = 'block';
+        renderSimpleForm('ideaforgeUpdateForm', IDEAFORGE_UPDATE_FIELDS, submitIdeaForgeUpdate);
+        window.scrollTo(0, 0);
+    }
+
+    // ========== Business Diagnostic (existing multi-section) ==========
+
+    function initDiagnosticForm() {
+        // reset containers
+        currentSection = 0;
         const dotsContainer = document.getElementById('progressDots');
+        dotsContainer.innerHTML = '';
+        const form = document.getElementById('intakeForm');
+        form.innerHTML = '';
+
+        // progress dots
         for (let i = 0; i < SECTIONS.length; i++) {
             const dot = document.createElement('span');
             dot.className = 'dot' + (i === 0 ? ' active' : '');
@@ -387,20 +524,17 @@
             dotsContainer.appendChild(dot);
         }
 
-        // Create form sections
-        const form = document.getElementById('intakeForm');
+        // sections
         SECTIONS.forEach((section, sectionIndex) => {
             const sectionDiv = document.createElement('div');
             sectionDiv.className = 'section' + (sectionIndex === 0 ? ' active' : '');
             sectionDiv.id = 'section-' + sectionIndex;
 
-            let html = `<h2>${section.title}</h2>
-                        <p class="section-desc">${section.description}</p>`;
+            let html = `<h2>${section.title}</h2><p class="section-desc">${section.description}</p>`;
 
             section.questions.forEach(q => {
-                html += `<div class="question">
-                    <label for="${q.id}">${q.text}</label>`;
-                
+                html += `<div class="question"><label for="${q.id}">${q.text}</label>`;
+
                 if (q.type === 'textarea') {
                     html += `<textarea name="${q.id}" id="${q.id}" rows="4" placeholder="Your answer..."></textarea>`;
                 } else if (q.type === 'select') {
@@ -412,10 +546,10 @@
                 } else {
                     html += `<input type="${q.type}" name="${q.id}" id="${q.id}" placeholder="Your answer...">`;
                 }
+
                 html += `</div>`;
             });
 
-            // Navigation buttons
             html += `<div class="nav-buttons">`;
             if (sectionIndex > 0) {
                 html += `<button type="button" class="btn-secondary" onclick="prevSection()">← Previous</button>`;
@@ -425,18 +559,21 @@
             if (sectionIndex < SECTIONS.length - 1) {
                 html += `<button type="button" class="btn-primary" onclick="nextSection()">Next →</button>`;
             } else {
-                html += `<button type="button" class="btn-primary" id="submitBtn" onclick="submitForm()">Submit ✓</button>`;
+                html += `<button type="button" class="btn-primary" id="submitBtn" onclick="submitDiagnostic()">Submit ✓</button>`;
             }
             html += `</div>`;
 
             sectionDiv.innerHTML = html;
             form.appendChild(sectionDiv);
         });
+
+        updateProgress();
     }
 
     function updateProgress() {
         for (let i = 0; i < SECTIONS.length; i++) {
             const dot = document.getElementById('dot-' + i);
+            if (!dot) continue;
             dot.classList.remove('active', 'completed');
             if (i < currentSection) {
                 dot.classList.add('completed');
@@ -447,7 +584,7 @@
     }
 
     function showSection(index) {
-        document.querySelectorAll('.section').forEach((s, i) => {
+        document.querySelectorAll('#intakeForm .section').forEach((s, i) => {
             s.classList.toggle('active', i === index);
         });
         currentSection = index;
@@ -467,12 +604,11 @@
         }
     }
 
-    async function submitForm() {
+    async function submitDiagnostic() {
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="spinner"></span>Submitting...';
 
-        // Collect form data
         const formData = {};
         SECTIONS.forEach(section => {
             section.questions.forEach(q => {
@@ -480,25 +616,22 @@
                 if (el) formData[q.id] = el.value;
             });
         });
-        
+
         formData._submitted_at = new Date().toISOString();
         formData._version = "1.0";
+        formData._type = "bizbrain_diagnostic";
 
         try {
-            // Send to Google Apps Script
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
+            await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors',  // Required for Google Apps Script
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
 
-            // Show success (no-cors means we can't read response, but it usually works)
-            document.getElementById('formContainer').style.display = 'none';
+            document.getElementById('successMessage').textContent = 'Your diagnostic has been submitted successfully.';
+            hideAll();
             document.getElementById('successContainer').style.display = 'flex';
-
         } catch (error) {
             console.error('Submission error:', error);
             alert('There was an error submitting. Please try again.');
@@ -507,12 +640,136 @@
         }
     }
 
-    // Disable right-click on labels
+    // ========== IdeaForge forms (simple single-page) ==========
+
+    function renderSimpleForm(formId, fields, onSubmitFn) {
+        const form = document.getElementById(formId);
+        form.innerHTML = '';
+
+        fields.forEach(f => {
+            const wrap = document.createElement('div');
+            wrap.className = 'question';
+
+            const label = document.createElement('label');
+            label.setAttribute('for', f.id);
+            label.textContent = f.text + (f.required ? ' *' : '');
+            wrap.appendChild(label);
+
+            let el;
+            if (f.type === 'textarea') {
+                el = document.createElement('textarea');
+                el.rows = 4;
+            } else if (f.type === 'select') {
+                el = document.createElement('select');
+                (f.options || []).forEach(opt => {
+                    const o = document.createElement('option');
+                    o.value = opt;
+                    o.textContent = opt;
+                    el.appendChild(o);
+                });
+            } else {
+                el = document.createElement('input');
+                el.type = f.type;
+            }
+            el.id = f.id;
+            el.name = f.id;
+            if (f.required) el.required = true;
+            wrap.appendChild(el);
+
+            form.appendChild(wrap);
+        });
+
+        // consent checkbox only for intake
+        if (formId === 'ideaforgeIntakeForm') {
+            const wrap = document.createElement('div');
+            wrap.className = 'question';
+            const label = document.createElement('label');
+            label.style.userSelect = 'text';
+            label.innerHTML = '<input type="checkbox" id="consent_anonymized" /> I consent to anonymized use of this intake as a learning case (optional)';
+            wrap.appendChild(label);
+            const note = document.createElement('div');
+            note.className = 'note';
+            note.textContent = 'Optional. Helps improve IdeaForge patterns and decision trees.';
+            wrap.appendChild(note);
+            form.appendChild(wrap);
+        }
+
+        const actions = document.createElement('div');
+        actions.className = 'nav-buttons';
+        actions.innerHTML = `<span></span><button type="button" class="btn-primary" id="${formId}-submit">Submit ✓</button>`;
+        form.appendChild(actions);
+
+        document.getElementById(`${formId}-submit`).onclick = onSubmitFn;
+    }
+
+    async function submitIdeaForgeIntake() {
+        const btn = document.getElementById('ideaforgeIntakeForm-submit');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Submitting...';
+
+        const payload = { _submitted_at: new Date().toISOString(), _version: '0.1', _type: 'ideaforge_intake' };
+        IDEAFORGE_INTAKE_FIELDS.forEach(f => {
+            const el = document.getElementById(f.id);
+            if (el) payload[f.id] = el.value;
+        });
+        payload.consent_anonymized = document.getElementById('consent_anonymized')?.checked ? 'yes' : '';
+
+        try {
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            document.getElementById('successMessage').textContent = 'Your IdeaForge intake has been submitted successfully.';
+            hideAll();
+            document.getElementById('successContainer').style.display = 'flex';
+        } catch (error) {
+            console.error('Submission error:', error);
+            alert('There was an error submitting. Please try again.');
+            btn.disabled = false;
+            btn.innerHTML = 'Submit ✓';
+        }
+    }
+
+    async function submitIdeaForgeUpdate() {
+        const btn = document.getElementById('ideaforgeUpdateForm-submit');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Submitting...';
+
+        const payload = { _submitted_at: new Date().toISOString(), _version: '0.1', _type: 'ideaforge_update' };
+        IDEAFORGE_UPDATE_FIELDS.forEach(f => {
+            const el = document.getElementById(f.id);
+            if (el) payload[f.id] = el.value;
+        });
+
+        try {
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            document.getElementById('successMessage').textContent = 'Your IdeaForge update has been submitted successfully.';
+            hideAll();
+            document.getElementById('successContainer').style.display = 'flex';
+        } catch (error) {
+            console.error('Submission error:', error);
+            alert('There was an error submitting. Please try again.');
+            btn.disabled = false;
+            btn.innerHTML = 'Submit ✓';
+        }
+    }
+
+    // Disable right-click on labels (light deterrence)
     document.addEventListener('contextmenu', function(e) {
         if (e.target.tagName === 'LABEL') {
             e.preventDefault();
         }
     });
+
     </script>
 </body>
 </html>
