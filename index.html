@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Diagnostic</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: #1a1a2e;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 24px; margin-bottom: 8px; }
+        .header p { opacity: 0.8; font-size: 14px; }
+        .progress {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+            transition: all 0.3s;
+        }
+        .dot.active { background: #667eea; transform: scale(1.2); }
+        .dot.completed { background: #28a745; }
+        .content { padding: 30px; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .section h2 { color: #1a1a2e; margin-bottom: 8px; font-size: 20px; }
+        .section-desc { color: #666; margin-bottom: 24px; font-size: 14px; }
+        .question { margin-bottom: 24px; }
+        .question label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            user-select: none;
+        }
+        .question input,
+        .question textarea,
+        .question select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .question input:focus,
+        .question textarea:focus,
+        .question select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .question textarea { resize: vertical; min-height: 100px; }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary { background: #f0f0f0; color: #333; }
+        .btn-secondary:hover { background: #e0e0e0; }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        /* Access page */
+        .access-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .access-box {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .access-box h1 { color: #1a1a2e; margin-bottom: 8px; font-size: 24px; }
+        .access-box p { color: #666; margin-bottom: 24px; font-size: 14px; }
+        .access-box input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 4px;
+            margin-bottom: 16px;
+        }
+        .access-box input:focus { outline: none; border-color: #667eea; }
+        .access-box .error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 12px;
+            display: none;
+        }
+        .access-box .error.show { display: block; }
+        /* Success page */
+        .success-page {
+            text-align: center;
+            padding: 60px 30px;
+        }
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            background: #28a745;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 40px;
+            color: white;
+        }
+        .success-page h1 { color: #1a1a2e; margin-bottom: 16px; }
+        .success-page p { color: #666; line-height: 1.6; }
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        /* Hide form initially */
+        #formContainer { display: none; }
+        #successContainer { display: none; }
+    </style>
+</head>
+<body>
+    <!-- Access Code Page -->
+    <div id="accessContainer" class="access-page">
+        <div class="access-box">
+            <h1>Business Diagnostic</h1>
+            <p>Enter the access code provided by your consultant.</p>
+            <input type="text" id="accessCode" placeholder="Access Code" autocomplete="off" autofocus>
+            <button class="btn-primary" style="width:100%" onclick="verifyCode()">Continue →</button>
+            <p class="error" id="accessError">Invalid access code. Please try again.</p>
+        </div>
+    </div>
+
+    <!-- Main Form -->
+    <div id="formContainer">
+        <div class="container">
+            <div class="header">
+                <h1>Business Diagnostic</h1>
+                <p>Strategic clarity for growth-stage businesses</p>
+            </div>
+            <div class="progress" id="progressDots"></div>
+            <div class="content">
+                <form id="intakeForm"></form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Page -->
+    <div id="successContainer" class="access-page">
+        <div class="access-box">
+            <div class="checkmark">✓</div>
+            <h1>Thank You!</h1>
+            <p>Your diagnostic has been submitted successfully. We'll review your responses and get back to you soon.</p>
+        </div>
+    </div>
+
+    <script>
+    // =========================================================================
+    // CONFIGURATION - Update these values
+    // =========================================================================
+    
+    const ACCESS_CODE = "bizbrain2024";  // Change this per client if desired
+    
+    // Replace with your Google Apps Script Web App URL after setup
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwvyl4yMwkI4YbZ-V5bb9P7Bb0OUmv-7JXSWGFQBiF2B9JmE4-6J2A7s2pOs_LPrO2a/exec";
+    
+    // =========================================================================
+
+    const SECTIONS = [
+        {
+            id: "identification",
+            title: "Client Information",
+            description: "Basic information about you and your business.",
+            questions: [
+                { id: "name", text: "Your Name", type: "text" },
+                { id: "business_name", text: "Business Name", type: "text" },
+                { id: "email", text: "Email", type: "email" },
+                { id: "phone", text: "Phone (optional)", type: "text" },
+                { id: "website", text: "Website (optional)", type: "text" },
+                { id: "industry", text: "Industry / What does your business do?", type: "textarea" }
+            ]
+        },
+        {
+            id: "company_reality",
+            title: "Section A: Company Reality",
+            description: "Help us understand your current operations and resources.",
+            questions: [
+                { id: "A1", text: "How many people are on the team? What does each person do?", type: "textarea" },
+                { id: "A2", text: "What are the founders' backgrounds? What did they do before this?", type: "textarea" },
+                { id: "A3", text: "If the founders disappeared for 3 months, what would break?", type: "textarea" },
+                { id: "A4", text: "What's documented vs. in someone's head?", type: "textarea" },
+                { id: "A5", text: "How often does the leadership team meet? What's the format?", type: "textarea" },
+                { id: "A6", text: "What do you measure weekly? Monthly?", type: "textarea" },
+                { id: "A7", text: "Revenue ballpark?", type: "select", options: ["Prefer not to say", "Less than $1M", "$1M - $5M", "$5M - $10M", "$10M+"] },
+                { id: "A8", text: "How is the company funded? (Bootstrapped / Raised / From whom?)", type: "textarea" },
+                { id: "A9", text: "What's the cash available for new initiatives?", type: "textarea" },
+                { id: "A10", text: "Is the team maxed out, or is there bandwidth for new experiments?", type: "textarea" }
+            ]
+        },
+        {
+            id: "capabilities",
+            title: "Section B: Capabilities & Edges",
+            description: "What makes your business unique?",
+            questions: [
+                { id: "B1", text: "What can you do that competitors genuinely can't?", type: "textarea" },
+                { id: "B2", text: "What relationships/partnerships already exist?", type: "textarea" },
+                { id: "B3", text: "What data do you have that others don't?", type: "textarea" },
+                { id: "B4", text: "What technology/tools does the team know well?", type: "textarea" },
+                { id: "B5", text: "What's worked surprisingly well? Any 'lucky' wins?", type: "textarea" },
+                { id: "B6", text: "What's your unfair advantage that's hard to copy?", type: "textarea" },
+                { id: "B7", text: "What unique access do you have? (Supply chain, geography, relationships)", type: "textarea" }
+            ]
+        },
+        {
+            id: "customers",
+            title: "Section C: Customer Understanding",
+            description: "Help us understand your customers.",
+            questions: [
+                { id: "C1", text: "Why do YOUR customers buy from you instead of competitors?", type: "textarea" },
+                { id: "C2", text: "Who is your ideal customer? Who is NOT your customer?", type: "textarea" },
+                { id: "C3", text: "What's the #1 objection you hear? How do you handle it?", type: "textarea" },
+                { id: "C4", text: "What story do you tell about the company?", type: "textarea" },
+                { id: "C5", text: "What job are customers hiring your product to do?", type: "textarea" },
+                { id: "C6", text: "What would customers do if you didn't exist?", type: "textarea" }
+            ]
+        },
+        {
+            id: "pricing",
+            title: "Section D: Pricing & Economics",
+            description: "Understanding your business model.",
+            questions: [
+                { id: "D1", text: "How did you set your prices?", type: "textarea" },
+                { id: "D2", text: "What's your margin structure?", type: "textarea" },
+                { id: "D3", text: "What's the difference between a one-time buyer and a repeat customer?", type: "textarea" },
+                { id: "D4", text: "Do you have guarantees, bonuses, or risk-reversals?", type: "textarea" },
+                { id: "D5", text: "What would make your offer a 'no-brainer'?", type: "textarea" }
+            ]
+        },
+        {
+            id: "constraints",
+            title: "Section E: Focus & Constraints",
+            description: "Where should you focus?",
+            questions: [
+                { id: "E1", text: "What's the ONE thing that, if 10x better, would transform the business?", type: "textarea" },
+                { id: "E2", text: "What 20% of effort drives 80% of results?", type: "textarea" },
+                { id: "E3", text: "What are you spending time on that probably doesn't matter?", type: "textarea" },
+                { id: "E4", text: "What's blocking growth right now?", type: "textarea" },
+                { id: "E5", text: "If you could only work on ONE thing for the next 90 days, what would it be?", type: "textarea" },
+                { id: "E6", text: "What would success look like in 90 days?", type: "textarea" }
+            ]
+        },
+        {
+            id: "experiments",
+            title: "Section F: Experiments & Learning",
+            description: "What have you tried and learned?",
+            questions: [
+                { id: "F1", text: "What have you tried that didn't work?", type: "textarea" },
+                { id: "F2", text: "What opportunities did you consider but reject? Why?", type: "textarea" },
+                { id: "F3", text: "What advice have you received that you ignored?", type: "textarea" },
+                { id: "F4", text: "How do you run experiments?", type: "textarea" },
+                { id: "F5", text: "What have you learned in the last 6 months that changed how you operate?", type: "textarea" }
+            ]
+        },
+        {
+            id: "relationships",
+            title: "Section G: Relationships & Negotiations",
+            description: "Key stakeholder dynamics.",
+            questions: [
+                { id: "G1", text: "Who are your most important relationships?", type: "textarea" },
+                { id: "G2", text: "What's the hardest negotiation you're facing right now?", type: "textarea" },
+                { id: "G3", text: "How do you handle conflict with partners/suppliers?", type: "textarea" },
+                { id: "G4", text: "Who could kill your business if they wanted to?", type: "textarea" }
+            ]
+        },
+        {
+            id: "vision",
+            title: "Section H: Vision & Direction",
+            description: "Where are you headed?",
+            questions: [
+                { id: "H1", text: "What does success look like in 3 years?", type: "textarea" },
+                { id: "H2", text: "What would you do with unlimited resources?", type: "textarea" },
+                { id: "H3", text: "What's the biggest bet you're afraid to make?", type: "textarea" },
+                { id: "H4", text: "What would make this company worth 10x what it's worth today?", type: "textarea" }
+            ]
+        },
+        {
+            id: "culture",
+            title: "Section I: Culture & Foundations",
+            description: "These questions matter more than you might think.",
+            questions: [
+                { id: "I1", text: "What happens when someone makes a mistake here?", type: "textarea" },
+                { id: "I2", text: "Has there been a moment when the team went above and beyond without being asked?", type: "textarea" },
+                { id: "I3", text: "What have you refused to do, even when it would have been profitable?", type: "textarea" },
+                { id: "I4", text: "Why did you start this company? (Beyond money)", type: "textarea" },
+                { id: "I5", text: "What makes you proud about how the company operates?", type: "textarea" },
+                { id: "I6", text: "How do you develop your people?", type: "textarea" },
+                { id: "I7", text: "What do employees say about working here?", type: "textarea" }
+            ]
+        }
+    ];
+
+    let currentSection = 0;
+
+    // Verify access code
+    function verifyCode() {
+        const code = document.getElementById('accessCode').value;
+        if (code === ACCESS_CODE) {
+            document.getElementById('accessContainer').style.display = 'none';
+            document.getElementById('formContainer').style.display = 'block';
+            initForm();
+        } else {
+            document.getElementById('accessError').classList.add('show');
+        }
+    }
+
+    // Allow Enter key to submit access code
+    document.getElementById('accessCode').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') verifyCode();
+    });
+
+    // Initialize the form
+    function initForm() {
+        // Create progress dots
+        const dotsContainer = document.getElementById('progressDots');
+        for (let i = 0; i < SECTIONS.length; i++) {
+            const dot = document.createElement('span');
+            dot.className = 'dot' + (i === 0 ? ' active' : '');
+            dot.id = 'dot-' + i;
+            dotsContainer.appendChild(dot);
+        }
+
+        // Create form sections
+        const form = document.getElementById('intakeForm');
+        SECTIONS.forEach((section, sectionIndex) => {
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'section' + (sectionIndex === 0 ? ' active' : '');
+            sectionDiv.id = 'section-' + sectionIndex;
+
+            let html = `<h2>${section.title}</h2>
+                        <p class="section-desc">${section.description}</p>`;
+
+            section.questions.forEach(q => {
+                html += `<div class="question">
+                    <label for="${q.id}">${q.text}</label>`;
+                
+                if (q.type === 'textarea') {
+                    html += `<textarea name="${q.id}" id="${q.id}" rows="4" placeholder="Your answer..."></textarea>`;
+                } else if (q.type === 'select') {
+                    html += `<select name="${q.id}" id="${q.id}">`;
+                    q.options.forEach(opt => {
+                        html += `<option value="${opt}">${opt}</option>`;
+                    });
+                    html += `</select>`;
+                } else {
+                    html += `<input type="${q.type}" name="${q.id}" id="${q.id}" placeholder="Your answer...">`;
+                }
+                html += `</div>`;
+            });
+
+            // Navigation buttons
+            html += `<div class="nav-buttons">`;
+            if (sectionIndex > 0) {
+                html += `<button type="button" class="btn-secondary" onclick="prevSection()">← Previous</button>`;
+            } else {
+                html += `<span></span>`;
+            }
+            if (sectionIndex < SECTIONS.length - 1) {
+                html += `<button type="button" class="btn-primary" onclick="nextSection()">Next →</button>`;
+            } else {
+                html += `<button type="button" class="btn-primary" id="submitBtn" onclick="submitForm()">Submit ✓</button>`;
+            }
+            html += `</div>`;
+
+            sectionDiv.innerHTML = html;
+            form.appendChild(sectionDiv);
+        });
+    }
+
+    function updateProgress() {
+        for (let i = 0; i < SECTIONS.length; i++) {
+            const dot = document.getElementById('dot-' + i);
+            dot.classList.remove('active', 'completed');
+            if (i < currentSection) {
+                dot.classList.add('completed');
+            } else if (i === currentSection) {
+                dot.classList.add('active');
+            }
+        }
+    }
+
+    function showSection(index) {
+        document.querySelectorAll('.section').forEach((s, i) => {
+            s.classList.toggle('active', i === index);
+        });
+        currentSection = index;
+        updateProgress();
+        window.scrollTo(0, 0);
+    }
+
+    function nextSection() {
+        if (currentSection < SECTIONS.length - 1) {
+            showSection(currentSection + 1);
+        }
+    }
+
+    function prevSection() {
+        if (currentSection > 0) {
+            showSection(currentSection - 1);
+        }
+    }
+
+    async function submitForm() {
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span>Submitting...';
+
+        // Collect form data
+        const formData = {};
+        SECTIONS.forEach(section => {
+            section.questions.forEach(q => {
+                const el = document.getElementById(q.id);
+                if (el) formData[q.id] = el.value;
+            });
+        });
+        
+        formData._submitted_at = new Date().toISOString();
+        formData._version = "1.0";
+
+        try {
+            // Send to Google Apps Script
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',  // Required for Google Apps Script
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            // Show success (no-cors means we can't read response, but it usually works)
+            document.getElementById('formContainer').style.display = 'none';
+            document.getElementById('successContainer').style.display = 'flex';
+
+        } catch (error) {
+            console.error('Submission error:', error);
+            alert('There was an error submitting. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Submit ✓';
+        }
+    }
+
+    // Disable right-click on labels
+    document.addEventListener('contextmenu', function(e) {
+        if (e.target.tagName === 'LABEL') {
+            e.preventDefault();
+        }
+    });
+    </script>
+</body>
+</html>
