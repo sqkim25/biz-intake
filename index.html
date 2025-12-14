@@ -288,7 +288,7 @@
     const ACCESS_CODE = "bizbrain2024";  // deterrence only
 
     // Replace with your Google Apps Script Web App URL after setup
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxb74GbqqQdz268UoJzqSTxAbmUStoS1qSI1UnWEaMV-VnpYX8OmTXPz1-Zh1zlG0Za/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKAmHqXt-Nu9Lx6tXw0SB8SDVTaduWRzQq26hFqFG8wt4dAu2wWCSGi1TfdnJUJYTh/exec";
 
     // =========================================================================
 
@@ -426,20 +426,42 @@
     ];
 
     const IDEAFORGE_INTAKE_FIELDS = [
+        // Contact
         { id: 'name', text: 'Your name', type: 'text', required: true },
         { id: 'email', text: 'Email', type: 'email', required: true },
+
+        // Idea core
         { id: 'idea_one_liner', text: 'One-sentence idea', type: 'text', required: true },
-        { id: 'icp', text: 'Who it\'s for (ICP)', type: 'textarea', required: true },
-        { id: 'jtbd', text: 'Problem / job-to-be-done', type: 'textarea', required: true },
-        { id: 'alternatives', text: 'Current solution / alternatives', type: 'textarea', required: false },
-        { id: 'why_now', text: 'Why now?', type: 'textarea', required: false },
+        { id: 'icp', text: "Who it’s for (ICP) — be specific (role + situation + where to find them)", type: 'textarea', required: true },
+        { id: 'jtbd', text: 'Problem / job-to-be-done (what they are trying to accomplish)', type: 'textarea', required: true },
+        { id: 'alternatives', text: 'Current solution / alternatives (incl. “do nothing”)', type: 'textarea', required: false },
+        { id: 'why_now', text: 'Why now? (what changed)', type: 'textarea', required: false },
+
+        // Constraints
         { id: 'time_budget', text: 'Time budget', type: 'select', required: true, options: ['Side-project','Part-time','Full-time'] },
         { id: 'runway', text: 'Runway', type: 'select', required: true, options: ['<3mo','3–12mo','>12mo','Unknown'] },
-        { id: 'non_negotiables', text: 'Non-negotiables', type: 'textarea', required: false },
-        { id: 'primary_distribution', text: 'Primary distribution', type: 'select', required: true, options: ['Owned-audience','Community','SEO','Marketplace','Build-in-public','Direct sales','Affiliates','Unknown'] },
-        { id: 'stage', text: 'Stage', type: 'select', required: true, options: ['Pre-PMF','Post-PMF','Scaling'] },
-        { id: 'customer_type', text: 'Customer type', type: 'select', required: true, options: ['B2B-SMB','B2B-Midmarket','B2C','Prosumer','Unknown'] },
-        { id: 'pricing_motion', text: 'Pricing motion', type: 'select', required: true, options: ['Subscription','One-time','Per-transaction','Trial','Paywall-at-value-moment','Unknown'] },
+        { id: 'non_negotiables', text: 'Non-negotiables (constraints, ethics, boundaries)', type: 'textarea', required: false },
+
+        // Context Vector (routing) — minimal but complete
+        { id: 'venture_type', text: 'Venture type', type: 'select', required: true, options: ['SaaS','Mobile app','Services','Ecommerce','Content','Marketplace add-on','Other','Unknown'] },
+        { id: 'customer_type', text: 'Customer type', type: 'select', required: true, options: ['B2C','B2B-SMB','B2B-Midmarket','Enterprise','Prosumer','Unknown'] },
+        { id: 'sales_motion', text: 'Sales motion', type: 'select', required: true, options: ['Self-serve','Sales-assist','High-touch','Enterprise','Unknown'] },
+        { id: 'pricing_motion', text: 'Pricing motion', type: 'select', required: true, options: ['Freemium','Trial','Paywall-at-value-moment','Subscription','Usage-based','One-time','Mixed','Unknown'] },
+        { id: 'primary_distribution', text: 'Primary distribution', type: 'select', required: true, options: ['Owned-audience','SEO','Marketplace','Build-in-public','Community','Partnerships','Affiliates','Outbound','Paid-ads','Acquisition (existing base)','Other','Unknown'] },
+        { id: 'secondary_distribution', text: 'Secondary distribution (optional)', type: 'select', required: false, options: ['None','Owned-audience','SEO','Marketplace','Build-in-public','Community','Partnerships','Affiliates','Outbound','Paid-ads','Acquisition (existing base)','Other','Unknown'] },
+        { id: 'stage', text: 'Stage', type: 'select', required: true, options: ['Pre-PMF','Early-PMF','Growth','Scale','Unknown'] },
+        { id: 'market_competition', text: 'Market competition', type: 'select', required: true, options: ['Low','Medium','High','Unknown'] },
+        { id: 'compliance_risk', text: 'Compliance / platform risk (TOS, payments, data, policy)', type: 'select', required: true, options: ['Low','Medium','High','Unknown'] },
+        { id: 'tech_debt_risk', text: 'Tech debt / reliability risk', type: 'select', required: true, options: ['Low','Medium','High','Unknown'] },
+        { id: 'primary_success_metric', text: 'Primary success metric (what you’ll track weekly)', type: 'select', required: true, options: ['MRR','Active users','Trials→Paid','Retention','Exports/Outputs','Other','Unknown'] },
+        { id: 'earliest_signal', text: 'Earliest signal (1 sentence): what would “working” look like soon?', type: 'textarea', required: true },
+
+        // Simulation-grade fields (best-effort)
+        { id: 'constraint_snapshot', text: 'Constraint snapshot: If you could fix ONE bottleneck this week, what is it? If fixed, what becomes next?', type: 'textarea', required: false },
+        { id: 'unit_economics_primitives', text: 'Unit economics primitives (best guess): price, gross margin range, labor minutes/unit, capacity/day, fixed vs variable costs', type: 'textarea', required: false },
+        { id: 'acquisition_channel_map', text: 'Acquisition / distribution map: top 1–3 channels + why they work for this context', type: 'textarea', required: false },
+        { id: 'delegation_boundary', text: 'Delegation boundary: what is founder-only vs teachable? What breaks first if staffing changes?', type: 'textarea', required: false },
+        { id: 'failure_modes', text: 'Failure modes: list 3–5 ways the model dies (cash, quality, stamina, regulation, platform, etc.)', type: 'textarea', required: false },
         { id: 'notes_links', text: 'Notes / links (optional)', type: 'textarea', required: false }
     ];
 
@@ -707,7 +729,7 @@
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span>Submitting...';
 
-        const payload = { _submitted_at: new Date().toISOString(), _version: '0.1', _type: 'ideaforge_intake' };
+        const payload = { _submitted_at: new Date().toISOString(), _version: '0.2', _type: 'ideaforge_intake' };
         IDEAFORGE_INTAKE_FIELDS.forEach(f => {
             const el = document.getElementById(f.id);
             if (el) payload[f.id] = el.value;
